@@ -28,6 +28,7 @@ body.dark .calendar{background:#332638}.date-trigger{cursor:pointer}
 @media(max-width:560px){body{padding:14px}.card{min-height:unset;padding:26px 20px;border-radius:24px}.choices{grid-template-columns:1fr}.choice{min-height:unset}.row{grid-template-columns:1fr}.topline{margin-bottom:12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body class="dark">
 <main class="shell">
@@ -38,6 +39,10 @@ body.dark .calendar{background:#332638}.date-trigger{cursor:pointer}
 </main>
 <script>
 const app=document.getElementById('app'), progress=[...document.querySelectorAll('.dot')];
+// EmailJS: replace these placeholders with values from your EmailJS dashboard.
+emailjs.init({ publicKey: "xI6-0jhw0Id_Krbwh" });
+const EMAILJS_SERVICE_ID = "service_x2ibwjh";
+const EMAILJS_TEMPLATE_ID = "template_khjfw1n";
 const state={step:0,activity:'',date:'',jalaliDate:'',time:'۱۸:۰۰',city:'',placePref:'با هم انتخاب کنیم 🤝',cafe:'',note:'',noClicks:0,prevMsg:-1,submitted:false};
 const jokes=['مطمئنی؟ من حتی منوی کافه رو هم بررسی کردم! 😂','یه فرصت کوچولو به این پیشنهاد بده دیگه 🥹','قلب من الان رفت تو حالت ذخیره باتری 💔','باشه... ولی قهوه بدون تو یه چیزی کم داره ☕','این دکمه داره از خجالت آب می‌شه! 😭','فقط یه کافه‌ست، نه جلسه دفاع پایان‌نامه! 😂','من و این پیشنهاد هنوز امید داریم! 🥲','یه آره کوچولو می‌تونه روز یکی رو بسازه 💗','سیستم به این نتیجه رسید که پیشنهاد ارزش بررسی داره! 🤖','دکمه نه استعفا داد، لطفاً با دکمه آره همکاری کن! 😂'];
 function faNum(s){return String(s).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d])}
@@ -131,8 +136,28 @@ function saveDetails(){
   let t=document.getElementById('time');
   if(t && t.value) state.time=t.value;
 }
-function summary(){app.innerHTML=`<div class="eyebrow">مرحله‌ی چهارم · مرور نهایی</div><h1>خب، پس داریم یه خاطره قشنگ می‌سازیم! 💗</h1><div class="summary"><div><span>مدل قرار</span><b>${esc(state.activity)}</b></div><div><span>تاریخ انتخابی</span><b>${esc(state.jalaliDate||'—')}</b></div><div><span>ساعت</span><b>${esc(state.time)}</b></div><div><span>شهر یا محله</span><b>—</b></div><div><span>ترجیح محل</span><b>${esc(state.placePref)}</b></div>${state.note?`<div><span>یادداشت</span><b>${esc(state.note)}</b></div>`:''}</div><p>پس فعلاً قرارمون اینه:<br>یه روز قشنگ، یه جای دنج، یه نوشیدنی خوشمزه و دو نفر که قراره چند ساعت از روزشون رو به هم اختصاص بدن. ☕🌷<br><br>حالا دیگه باید منتظر یه روز خوب باشیم!</p><div class="message" id="err"></div><div class="actions"><button class="btn secondary" id="edit">می‌خوام تغییرش بدم</button><button class="btn primary" id="submit">همه‌چی درسته، ثبتش کن! 💌</button></div><p class="note">این فقط یک پیشنهاد برای قرار است؛ تاریخ نهایی وقتی قطعی می‌شود که هر دو نفر موافق باشند.</p>`;document.getElementById('edit').onclick=()=>setStep(3);document.getElementById('submit').onclick=async()=>{const btn=document.getElementById('submit'),err=document.getElementById('err');btn.disabled=true;btn.textContent='در حال ارسال…';err.textContent='';const controller=new AbortController();const timeoutId=setTimeout(()=>controller.abort(),12000);try{const response=await fetch('https://formsubmit.co/ajax/chsterking@gmail.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},signal:controller.signal,body:JSON.stringify({_subject:'پیشنهاد قرار جدید 💌',_template:'table',activity:state.activity,date_jalali:state.jalaliDate,date_gregorian:state.date,time:state.time,place_preference:state.placePref,note:state.note||'بدون توضیح',invitation_response:'آره، چرا که نه!'})});const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{}if(!response.ok||data.success===false){throw new Error(data.message||'سرویس ایمیل درخواست را نپذیرفت. اتصال اینترنت و تأیید ایمیل  را بررسی کن.')}state.submissionId='';state.emailSent=true;state.submitted=true;setStep(5)}catch(e){if(e.name==='AbortError'){err.textContent='پاسخ سرویس ایمیل تا ۱۲ ثانیه دریافت نشد. ممکن است درخواست هنوز در حال پردازش باشد؛ پیش از تلاش دوباره، ایمیل را بررسی کن تا پیام تکراری ارسال نشود.'}else{err.textContent=e.message||'ارسال انجام نشد. اتصال اینترنت را بررسی کن و دوباره تلاش کن.'}btn.disabled=false;btn.textContent='دوباره تلاش کن 💌'}finally{clearTimeout(timeoutId)}}}
-function success(){progress.forEach(d=>d.classList.add('active'));app.innerHTML=`<div class="confetti">💗 ✨ ☕ ✨ 💗</div><h1>پیشنهاد قرارمون ثبت شد! 🥹💗</h1><p>حالا دیگه باید برای یه روز قشنگ برنامه‌ریزی کنیم!<br><br>${state.emailSent?'درخواست ارسال اطلاعات به ایمیل ثبت شد. اگر اولین بار است، ایمیل تأیید FormSubmit را باز کن و تأییدش کن.':'اطلاعات برای ارسال به ایمیل ثبت شد.'}<br><small>این تاریخ پیشنهادی است و وقتی قطعی می‌شود که هر دو نفر موافق باشند.</small></p><div class="summary"><div><span>قرار پیشنهادی</span><b>${esc(state.activity)}</b></div><div><span>تاریخ انتخابی</span><b>${esc(state.jalaliDate||state.date)}</b></div><div><span>ساعت</span><b>${esc(state.time)}</b></div></div><div class="actions"><button class="btn primary" id="restart">شروع دوباره 💌</button></div>`;document.getElementById('restart').onclick=()=>{Object.assign(state,{step:0,activity:'',date:'',jalaliDate:'',time:'۱۸:۰۰',city:'',placePref:'با هم انتخاب کنیم 🤝',cafe:'',note:'',noClicks:0,prevMsg:-1,submitted:false,submissionId:'',emailSent:false});setStep(0)}}
+function summary(){app.innerHTML=`<div class="eyebrow">مرحله‌ی چهارم · مرور نهایی</div><h1>خب، پس داریم یه خاطره قشنگ می‌سازیم! 💗</h1><div class="summary"><div><span>مدل قرار</span><b>${esc(state.activity)}</b></div><div><span>تاریخ انتخابی</span><b>${esc(state.jalaliDate||'—')}</b></div><div><span>ساعت</span><b>${esc(state.time)}</b></div><div><span>شهر یا محله</span><b>—</b></div><div><span>ترجیح محل</span><b>${esc(state.placePref)}</b></div>${state.note?`<div><span>یادداشت</span><b>${esc(state.note)}</b></div>`:''}</div><p>پس فعلاً قرارمون اینه:<br>یه روز قشنگ، یه جای دنج، یه نوشیدنی خوشمزه و دو نفر که قراره چند ساعت از روزشون رو به هم اختصاص بدن. ☕🌷<br><br>حالا دیگه باید منتظر یه روز خوب باشیم!</p><div class="message" id="err"></div><div class="actions"><button class="btn secondary" id="edit">می‌خوام تغییرش بدم</button><button class="btn primary" id="submit">همه‌چی درسته، ثبتش کن! 💌</button></div><p class="note">این فقط یک پیشنهاد برای قرار است؛ تاریخ نهایی وقتی قطعی می‌شود که هر دو نفر موافق باشند.</p>`;document.getElementById('edit').onclick=()=>setStep(3);document.getElementById('submit').onclick=async()=>{const btn=document.getElementById('submit'),err=document.getElementById('err');btn.disabled=true;btn.textContent='در حال ارسال…';err.textContent='';try {
+  await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    activity: state.activity || "ثبت نشده",
+    date_jalali: state.jalaliDate || "ثبت نشده",
+    date_gregorian: state.date || "ثبت نشده",
+    time: state.time || "ثبت نشده",
+    place_preference: state.placePref || "ثبت نشده",
+    note: state.note || "بدون توضیح",
+    invitation_response: "آره، چرا که نه!"
+  });
+
+  state.submissionId = "";
+  state.emailSent = true;
+  state.submitted = true;
+  setStep(5);
+} catch (e) {
+  console.error("EmailJS send error:", e);
+  err.textContent = "ارسال ایمیل انجام نشد. شناسه‌های EmailJS، اتصال اینترنت و تنظیمات قالب را بررسی کن.";
+  btn.disabled = false;
+  btn.textContent = "دوباره تلاش کن 💌";
+}}}
+function success(){progress.forEach(d=>d.classList.add('active'));app.innerHTML=`<div class="confetti">💗 ✨ ☕ ✨ 💗</div><h1>پیشنهاد قرارمون ثبت شد! 🥹💗</h1><p>حالا دیگه باید برای یه روز قشنگ برنامه‌ریزی کنیم!<br><br>${state.emailSent?'اطلاعات برای ارسال به سرویس ایمیل تحویل داده شد.':'اطلاعات برای ارسال ثبت شد.'}<br><small>این تاریخ پیشنهادی است و وقتی قطعی می‌شود که هر دو نفر موافق باشند.</small></p><div class="summary"><div><span>قرار پیشنهادی</span><b>${esc(state.activity)}</b></div><div><span>تاریخ انتخابی</span><b>${esc(state.jalaliDate||state.date)}</b></div><div><span>ساعت</span><b>${esc(state.time)}</b></div></div><div class="actions"><button class="btn primary" id="restart">شروع دوباره 💌</button></div>`;document.getElementById('restart').onclick=()=>{Object.assign(state,{step:0,activity:'',date:'',jalaliDate:'',time:'۱۸:۰۰',city:'',placePref:'با هم انتخاب کنیم 🤝',cafe:'',note:'',noClicks:0,prevMsg:-1,submitted:false,submissionId:'',emailSent:false});setStep(0)}}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 document.getElementById('themeBtn').onclick=()=>{document.body.classList.toggle('dark');document.getElementById('themeBtn').textContent=document.body.classList.contains('dark')?'☀️ حالت روشن':'🌙 حالت شب'};
 render();

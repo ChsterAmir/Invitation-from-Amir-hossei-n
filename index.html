@@ -40,9 +40,9 @@ body.dark .calendar{background:#332638}.date-trigger{cursor:pointer}
 <script>
 const app=document.getElementById('app'), progress=[...document.querySelectorAll('.dot')];
 // EmailJS: replace these placeholders with values from your EmailJS dashboard.
-emailjs.init({ publicKey: "xI6-0jhw0Id_Krbwh" });
-const EMAILJS_SERVICE_ID = "service_x2ibwjh";
-const EMAILJS_TEMPLATE_ID = "template_khjfw1n";
+emailjs.init({ publicKey: "YOUR_PUBLIC_KEY" });
+const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
+const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
 const state={step:0,activity:'',date:'',jalaliDate:'',time:'۱۸:۰۰',city:'',placePref:'با هم انتخاب کنیم 🤝',cafe:'',note:'',noClicks:0,prevMsg:-1,submitted:false};
 const jokes=['مطمئنی؟ من حتی منوی کافه رو هم بررسی کردم! 😂','یه فرصت کوچولو به این پیشنهاد بده دیگه 🥹','قلب من الان رفت تو حالت ذخیره باتری 💔','باشه... ولی قهوه بدون تو یه چیزی کم داره ☕','این دکمه داره از خجالت آب می‌شه! 😭','فقط یه کافه‌ست، نه جلسه دفاع پایان‌نامه! 😂','من و این پیشنهاد هنوز امید داریم! 🥲','یه آره کوچولو می‌تونه روز یکی رو بسازه 💗','سیستم به این نتیجه رسید که پیشنهاد ارزش بررسی داره! 🤖','دکمه نه استعفا داد، لطفاً با دکمه آره همکاری کن! 😂'];
 function faNum(s){return String(s).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d])}
